@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models import Document
+from app.services.document_service import process_document
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -33,13 +34,19 @@ def list_documents(
     )
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=DocumentOut, status_code=status.HTTP_201_CREATED)
 async def upload_document(
     file: UploadFile,
     user_id: str = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    # The parse -> chunk -> embed -> store pipeline is built in Step 2.
-    raise HTTPException(
-        status.HTTP_501_NOT_IMPLEMENTED, "Document processing arrives in step 2"
-    )
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Only PDF files are supported")
+
+    data = await file.read()
+    try:
+        return process_document(db, user_id, file.filename, data)
+    except ValueError as exc:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc)
+        ) from exc
