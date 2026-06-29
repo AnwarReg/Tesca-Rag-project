@@ -1,0 +1,31 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: tesca
+      POSTGRES_PASSWORD: tesca
+      POSTGRES_DB: tesca
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tesca"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: ./backend
+    ports:
+      - "8000:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://tesca:tesca@db:5432/tesca
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      DEV_AUTH_BYPASS: "true"
+
+volumes:
+  pgdata:
