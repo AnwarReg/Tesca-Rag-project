@@ -6,3 +6,6 @@ pgvector
 pydantic-settings
 pyjwt[crypto]
 python-multipart
+google-genai
+boto3
+pypdf
