@@ -25,7 +25,11 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg2://tesca:tesca@db:5432/tesca
       GEMINI_API_KEY: ${GEMINI_API_KEY}
-      DEV_AUTH_BYPASS: "true"
+      # Override these in the root .env to switch from dev bypass to real Clerk.
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-true}
+      CLERK_JWKS_URL: ${CLERK_JWKS_URL:-}
+      CLERK_ISSUER: ${CLERK_ISSUER:-}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
 
 volumes:
   pgdata:

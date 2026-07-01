@@ -1,9 +1,11 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from app import models  # noqa: F401 — registers tables on Base.metadata
+from app.config import settings
 from app.database import Base, engine
 from app.routers import documents, query
 
@@ -19,6 +21,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Tesca RAG API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.frontend_origin],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(documents.router)
 app.include_router(query.router)

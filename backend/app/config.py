@@ -21,5 +21,8 @@ class Settings(BaseSettings):
     s3_bucket: str | None = None
     aws_region: str = "us-east-1"
 
+    # Origin allowed to call this API from a browser (the frontend dev server).
+    frontend_origin: str = "http://localhost:5173"
+
 
 settings = Settings()
